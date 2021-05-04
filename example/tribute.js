@@ -35,14 +35,17 @@
   }
 
   function _iterableToArrayLimit(arr, i) {
-    if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
+    var _i = arr && (typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]);
+
+    if (_i == null) return;
     var _arr = [];
     var _n = true;
     var _d = false;
-    var _e = undefined;
+
+    var _s, _e;
 
     try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
         _arr.push(_s.value);
 
         if (i && _arr.length === i) break;
@@ -66,7 +69,7 @@
     if (typeof o === "string") return _arrayLikeToArray(o, minLen);
     var n = Object.prototype.toString.call(o).slice(8, -1);
     if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(n);
+    if (n === "Map" || n === "Set") return Array.from(o);
     if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
   }
 
@@ -636,6 +639,11 @@
         }
       }
     }, {
+      key: "menuContainerIsBody",
+      get: function get() {
+        return this.tribute.menuContainer === document.body || !this.tribute.menuContainer;
+      }
+    }, {
       key: "selectElement",
       value: function selectElement(targetElement, path, offset) {
         var range;
@@ -1182,11 +1190,6 @@
           window.scrollTo(0, targetY);
         }
       }
-    }, {
-      key: "menuContainerIsBody",
-      get: function get() {
-        return this.tribute.menuContainer === document.body || !this.tribute.menuContainer;
-      }
     }]);
 
     return TributeRange;
@@ -1518,6 +1521,21 @@
     }
 
     _createClass(Tribute, [{
+      key: "isActive",
+      get: function get() {
+        return this._isActive;
+      },
+      set: function set(val) {
+        if (this._isActive != val) {
+          this._isActive = val;
+
+          if (this.current.element) {
+            var noMatchEvent = new CustomEvent("tribute-active-".concat(val));
+            this.current.element.dispatchEvent(noMatchEvent);
+          }
+        }
+      }
+    }, {
       key: "triggers",
       value: function triggers() {
         return this.collection.map(function (config) {
@@ -1859,21 +1877,6 @@
             el.tributeMenu.remove();
           }
         });
-      }
-    }, {
-      key: "isActive",
-      get: function get() {
-        return this._isActive;
-      },
-      set: function set(val) {
-        if (this._isActive != val) {
-          this._isActive = val;
-
-          if (this.current.element) {
-            var noMatchEvent = new CustomEvent("tribute-active-".concat(val));
-            this.current.element.dispatchEvent(noMatchEvent);
-          }
-        }
       }
     }], [{
       key: "defaultSelectTemplate",
