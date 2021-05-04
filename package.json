@@ -35,7 +35,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/zurb/tribute.git"
+    "url": "git://github.com/phablulo/tribute.git"
   },
   "scripts": {
     "build": "rollup -c",
