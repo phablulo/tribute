@@ -402,6 +402,7 @@ class TributeRange {
     }
 
     isMenuOffScreen(coordinates, menuDimensions) {
+        return {top: false, right: false, bottom: false, left: false}
         let windowWidth = window.innerWidth
         let windowHeight = window.innerHeight
         let doc = document.documentElement
@@ -503,13 +504,13 @@ class TributeRange {
         let top = 0;
         let left = 0;
         if (this.menuContainerIsBody) {
-          top = rect.top;
-          left = rect.left;
+          top = rect.top + windowTop;
+          left = rect.left + windowLeft;
         }
 
         let coordinates = {
-            top: top + windowTop + span.offsetTop + parseInt(computed.borderTopWidth) + parseInt(computed.fontSize) - element.scrollTop,
-            left: left + windowLeft + span.offsetLeft + parseInt(computed.borderLeftWidth)
+            top: top + span.offsetTop + parseInt(computed.borderTopWidth) + parseInt(computed.fontSize) - element.scrollTop,
+            left: left + span.offsetLeft + parseInt(computed.borderLeftWidth)
         }
 
         let windowWidth = window.innerWidth
@@ -573,9 +574,24 @@ class TributeRange {
         let left = rect.left
         let top = rect.top
 
+        // https://github.com/zurb/tribute/issues/430#issuecomment-600079003
+        if (!this.menuContainerIsBody) {
+            // coordinates are referenced absolutely to the viewport position
+            // we need to make them relative by subtracting the menuContainers viewport position
+            let menuContainerRect = this.tribute.menuContainer.getBoundingClientRect()
+            left = left - menuContainerRect.left
+            top = top - menuContainerRect.top
+        }
+        else {
+            // coordinates are referenced absolutely to the viewport position
+            // we need to take the viewport position into account
+            left = left + windowLeft
+            top = top + windowTop
+        }
+
         let coordinates = {
-            left: left + windowLeft,
-            top: top + rect.height + windowTop
+            left: left,
+            top: top + rect.height
         }
         let windowWidth = window.innerWidth
         let windowHeight = window.innerHeight
@@ -614,11 +630,6 @@ class TributeRange {
                 ? windowTop + windowHeight - menuDimensions.height
                 : windowTop
             delete coordinates.bottom
-        }
-
-        if (!this.menuContainerIsBody) {
-            coordinates.left = coordinates.left ? coordinates.left - this.tribute.menuContainer.offsetLeft : coordinates.left
-            coordinates.top = coordinates.top ? coordinates.top - this.tribute.menuContainer.offsetTop : coordinates.top
         }
 
         return coordinates
